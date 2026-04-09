@@ -1,0 +1,36 @@
+{
+  "project": "sample",
+  "application": "gen3",
+  "owner": "Platform",
+  "naming": {
+    "namePrefix": "sample-gen3",
+    "ssmPrefix": "/platform",
+    "secretPrefix": "platform"
+  },
+  "environments": {
+    "uat": { "name": "uat", "account": "111111111111", "region": "ap-southeast-2" },
+    "prod": { "name": "prod", "account": "222222222222", "region": "ap-southeast-2" }
+  },
+  "stages": [
+    {
+      "id": "SampleUat",
+      "stageName": "UAT",
+      "envKey": "uat",
+      "network": {
+        "vpcCidr": "10.13.0.0/16",
+        "subnetCidr": 24,
+        "natGateways": 1,
+        "maxAzs": 3,
+        "enableS3GatewayEndpoint": true,
+        "interfaceEndpoints": ["S3", "EKS", "PROMETHEUS_WORKSPACES"]
+      },
+      "waf": {
+        "enabled": true,
+        "logRetentionPolicy": "RETAIN",
+        "managedRuleSets": [
+          { "vendorName": "AWS", "name": "AWSManagedRulesCommonRuleSet", "priority": 10 }
+        ]
+      }
+    }
+  ]
+}
