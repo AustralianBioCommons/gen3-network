@@ -107,6 +107,7 @@ jobs:
           OUTPUT_CONFIG: network/config.runtime.json
           AWS_ACCOUNT_ID: ${{ steps.aws_identity.outputs.account_id }}
           AWS_REGION: ${{ inputs.aws_region }}
+          TARGET_ENV: ${{ inputs.github_environment }}
         run: |
           node <<'NODE'
           const fs = require("fs");
@@ -115,6 +116,7 @@ jobs:
           const outputPath = process.env.OUTPUT_CONFIG;
           const accountId = process.env.AWS_ACCOUNT_ID;
           const defaultRegion = process.env.AWS_REGION;
+          const targetEnv = process.env.TARGET_ENV;
 
           const config = JSON.parse(fs.readFileSync(inputPath, "utf8"));
 
@@ -123,21 +125,25 @@ jobs:
           }
 
           for (const [key, env] of Object.entries(config.environments)) {
-            // Inject account if placeholder or missing
             if (!env.account || env.account === "__ACCOUNT_ID__") {
               env.account = accountId;
             }
-
-            // Inject region if missing
             if (!env.region) {
               env.region = defaultRegion;
             }
-
             config.environments[key] = env;
           }
 
+          config.stages = (config.stages || []).filter(
+            (stage) => stage.envKey === targetEnv
+          );
+
+          if (config.stages.length === 0) {
+            throw new Error(`No stages found for envKey='${targetEnv}'`);
+          }
+
           fs.writeFileSync(outputPath, JSON.stringify(config, null, 2));
-          console.log("Runtime config written to", outputPath);
+          console.log(`Wrote ${outputPath} with ${config.stages.length} stage(s)`);
           NODE
 
       # ----------------------------------------
