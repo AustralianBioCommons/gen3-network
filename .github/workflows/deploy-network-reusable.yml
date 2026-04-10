@@ -146,7 +146,18 @@ jobs:
       - name: Install dependencies
         working-directory: network
         run: npm ci
+      # ----------------------------------------
+      # Display configurations
+      # ----------------------------------------
+      - name: Show caller config
+        run: |
+          echo "=== caller config ==="
+          cat "caller/${{ inputs.config_path }}"
 
+      - name: Show runtime config
+        run: |
+          echo "=== runtime config ==="
+          cat "network/config.runtime.json"
       # ----------------------------------------
       # CDK synth
       # ----------------------------------------
