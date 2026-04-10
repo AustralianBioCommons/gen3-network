@@ -64,6 +64,14 @@ export class NetworkStack extends cdk.Stack {
       parameterName: `${props.ssmPrefix}/${props.project}/${props.application}/${envName}/private-subnet-ids`,
       stringValue: privateSubnetIds,
     });
+
+    const privateIsolatedSubnetIds = this.vpc.isolatedSubnets.map((s) => s.subnetId).join(",");
+
+    new ssm.StringParameter(this, "PrivateIsolatedSubnetIdsParameter", {
+      parameterName: `${props.ssmPrefix}/${props.project}/${props.application}/${envName}/private-isolated-subnet-ids`,
+      stringValue: privateIsolatedSubnetIds,
+    });
+
     new secretsmanager.Secret(this, "VpcIdSecret", {
       secretName: `${props.secretPrefix}/${props.project}/${props.application}/${envName}/vpc-id`,
       secretStringValue: cdk.SecretValue.unsafePlainText(this.vpc.vpcId),
